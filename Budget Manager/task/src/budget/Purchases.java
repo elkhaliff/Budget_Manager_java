@@ -6,9 +6,11 @@ import java.util.Scanner;
 
 public class Purchases {
     private Double balance;
+    Double total;
+    double amount;
 
     private final int ALL = 5;
-    private final String[] types = {"", "Food", "Clothes", "Entertainment", "Other"};
+    private final String[] types = {"", "Food", "Clothes", "Entertainment", "Other", "All"};
 
     private final Map<Integer, Map<String, Double>> purchases;
 
@@ -58,20 +60,26 @@ public class Purchases {
     }
 
     public void showPurchase(int type) {
-        if (type < ALL) {
-            showList(type, purchases.get(type));
-        } else
-            purchases.forEach((tp, purchase) -> showList(tp, purchase));
+        total = 0D;
 
+        println(String.format("\n%s:", types[type]));
+        if (type < ALL) {
+            total = showList(type, purchases.get(type));
+        } else
+            purchases.forEach((tp, purchase) -> { total += showList(tp, purchase);});
+        println(String.format("Total sum: $%s", total.toString()));
     }
 
-    private void showList(int type, Map purchase) {
-        println(String.format("\n%s:", types[type]));
+    private double showList(int type, Map purchase) {
+        amount = 0D;
         if (purchase.isEmpty())
             println("The purchase list is empty");
         else
-            purchase.forEach((purch, price) ->
-                    println(String.format("%s %s", purch, price.toString())));
+            purchase.forEach((purch, price) -> {
+                println(String.format("%s %s", purch, price.toString()));
+                amount += (double)price;
+            });
+        return amount;
     }
 
 }
