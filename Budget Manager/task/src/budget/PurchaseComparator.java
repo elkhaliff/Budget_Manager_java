@@ -2,7 +2,7 @@ package budget;
 
 import java.util.Comparator;
 
-public class PurchaseComparator  implements Comparator<Purchase> {
+public class PurchaseComparator implements Comparator<Purchase> {
 
     @Override
     public int compare(Purchase o1, Purchase o2) {
