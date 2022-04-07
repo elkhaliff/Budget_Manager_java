@@ -2,6 +2,7 @@ package budget;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Purchases implements Serializable {
     private Double balance;
@@ -65,19 +66,20 @@ public class Purchases implements Serializable {
 
         println(String.format("\n%s:", types[type]));
         if (type == ALL) {
-            purchases.forEach((tp, purchase) -> total += showMap(purchase));
+            purchases.forEach((tp, purchase) -> total += showMap(purchase, false));
         } else
-            total = showMap(purchases.get(type));
+            total = showMap(purchases.get(type), false);
         println(String.format("Total sum: $%.2f", total));
     }
 
-    private double showMap(Map<String, Double> map) {
+    private double showMap(Map<String, Double> map, boolean isMinus) {
         amount = 0D;
+        String minus = isMinus ? " -" : "";
         if (map.isEmpty())
             println("The purchase list is empty");
         else
             map.forEach((purchase, price) -> {
-                println(String.format("%s $%.2f", purchase, price));
+                println(String.format("%s%s $%.2f", purchase, minus, price));
                 amount += price;
             });
         return amount;
@@ -86,6 +88,7 @@ public class Purchases implements Serializable {
     public void sortPurchaseAll(boolean isSortByType) {
         total = 0D;
         int type = ALL;
+        boolean isMinus = false;
         Map<String, Double> sortedMap;
 
         if (!isSortByType && isEmpty(type))
@@ -94,11 +97,12 @@ public class Purchases implements Serializable {
             if (isSortByType) {
                 println("\nTypes:");
                 sortedMap = getSummaryMapByType(type);
+                isMinus = true;
             } else {
                 println(String.format("\n%s:", types[type]));
                 sortedMap = getSortedMapByType(type);
             }
-            total = showMap(sortedMap);
+            total = showMap(sortedMap, isMinus);
             println(String.format("Total sum: $%.2f", total));
         }
     }
@@ -124,7 +128,7 @@ public class Purchases implements Serializable {
             println("\n%s:, types[type]");
             sortedMap = getSortedMapByType(type);
 
-            total = showMap(sortedMap);
+            total = showMap(sortedMap, false);
             println(String.format("Total sum: $%.2f", total));
         }
     }
@@ -156,17 +160,9 @@ public class Purchases implements Serializable {
         return retMap;
     }
 
-    private  <K, V extends Comparable<V>> Map<K, V> sortByValues(final Map<K, V> map) {
-        Comparator<K> valueComparator = (k1, k2) -> {
-            int compare =
-                    map.get(k1).compareTo(map.get(k2));
-            if (compare == 0)
-                return 1;
-            else
-                return -compare;
-        };
-        Map<K, V> sortedByValues = new TreeMap<K, V>(valueComparator);
-        sortedByValues.putAll(map);
-        return sortedByValues;
+    private Map<String, Double> sortByValues(Map<String, Double> map) {
+        return  map.entrySet().stream()
+                .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 }
