@@ -161,8 +161,16 @@ public class Purchases implements Serializable {
     }
 
     private Map<String, Double> sortByValues(Map<String, Double> map) {
-        return  map.entrySet().stream()
+        Map<String, Double> outMap = new LinkedHashMap<>();
+        List<Purchase> ourPurchases = new LinkedList<>();
+        map.forEach((purchase, price) -> ourPurchases.add(new Purchase(purchase, price)));
+        ourPurchases.sort(new PurchaseComparator());
+        ourPurchases.forEach(temp -> outMap.put(temp.getName(), temp.getPrice()));
+        return outMap;
+        /*return  map.entrySet().stream()
                 .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
+         */
     }
 }
